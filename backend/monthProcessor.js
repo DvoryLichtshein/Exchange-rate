@@ -1,9 +1,8 @@
 const db = require('./db.js');
 
 /**
- * שמירת שער יומי
- * @param {string} dateStr - תאריך ב־YYYY-MM-DD
- * @param {number} rate - שער מטבע
+ * @param {string} dateStr 
+ * @param {number} rate 
  */
 function saveDailyRate(dateStr, rate) {
     db.prepare(`
@@ -13,24 +12,20 @@ function saveDailyRate(dateStr, rate) {
         )
     `).run();
 
-    db.prepare(`
-        INSERT INTO daily_rates (date, rate)
-        VALUES (?, ?)
-        ON CONFLICT(date) DO UPDATE SET
-            rate = excluded.rate
-    `).run(dateStr, rate);
+    const stmt = db.prepare(`INSERT OR REPLACE INTO daily_rates (date, rate) VALUES (?, ?)`);
+    stmt.run(dateStr, rate);
 }
 
 /**
- * חישוב ממוצע חודשי
- * @param {string} monthStr - חודש ב־YYYY-MM
- * @returns {number|null} ממוצע או null אם אין נתונים
+ * @param {string} monthStr 
+ * @returns {number|null}
  */
 function calculateMonthlyAverage(monthStr) {
     const rows = db.prepare(`
-        SELECT rate FROM daily_rates
-        WHERE substr(date, 1, 7) = ?
-    `).all(monthStr);
+    SELECT rate FROM daily_rates
+    WHERE strftime('%Y-%m', date) = ?
+`).all(monthStr);
+
 
     if (!rows.length) return null;
 
@@ -39,35 +34,55 @@ function calculateMonthlyAverage(monthStr) {
 }
 
 /**
- * עדכון או הוספת ממוצע חודשי
- * @param {string} monthStr
+ * @param {string} monthStr 
  */
 function saveMonthlyAverage(monthStr) {
-    const avg = calculateMonthlyAverage(monthStr);
-    if (avg === null) {
-        console.log(`[INFO] No daily rates for ${monthStr}`);
-        return;
-    }
+    db.prepare(`DELETE FROM exchange_rates WHERE month = ?`).run(monthStr);
 
-    db.prepare(`
-        CREATE TABLE IF NOT EXISTS exchange_rates (
-            month TEXT PRIMARY KEY,
-            average_rate REAL
-        )
-    `).run();
+    const avg = calculateMonthlyAverage(monthStr);
+    if (avg === null) return;
 
     db.prepare(`
         INSERT INTO exchange_rates (month, average_rate)
         VALUES (?, ?)
-        ON CONFLICT(month) DO UPDATE SET
-            average_rate = excluded.average_rate
-    `).run(monthStr, avg.toFixed(3));
+    `).run(monthStr, avg);
+}
 
-    console.log(`✅ Monthly avg saved for ${monthStr}: ${avg.toFixed(3)}`);
+
+
+function calculateForecastMatrix(rates) {
+    let forecastMatrix = [];
+    for (let i = 2; i < rates.length; i++) {
+        const avgPrevThreeMonths =
+            (rates[i - 2] + rates[i - 1] + rates[i]) / 3;
+        forecastMatrix.push(avgPrevThreeMonths);
+    }
+    return forecastMatrix;
+}
+
+
+function calculateDifferenceMatrix(actualRates, forecastRates) {
+    let differenceMatrix = [];
+    for (let i = 0; i < forecastRates.length; i++) {
+        differenceMatrix.push(actualRates[i + 2] - forecastRates[i]);
+    }
+    return differenceMatrix;
+}
+
+
+function calculateProductMatrix(forecastMatrix, differenceMatrix) {
+    let productMatrix = [];
+    for (let i = 0; i < forecastMatrix.length; i++) {
+        productMatrix.push(forecastMatrix[i] * differenceMatrix[i]);
+    }
+    return productMatrix;
 }
 
 module.exports = {
     saveDailyRate,
     calculateMonthlyAverage,
-    saveMonthlyAverage
+    saveMonthlyAverage,
+    calculateForecastMatrix,
+    calculateDifferenceMatrix,
+    calculateProductMatrix
 };

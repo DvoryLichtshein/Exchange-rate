@@ -4,6 +4,8 @@ services:
     build: ./backend
     ports:
       - "3000:3000"
+    environment:
+      - NODE_ENV=production
     volumes:
       - ./backend/data:/app/data
     deploy:
@@ -21,3 +23,18 @@ services:
       resources:
         limits:
           memory: 512M
+
+  backend-tests:
+    build: ./backend
+    command: npm test
+    environment:
+      - NODE_ENV=test
+
+  frontend-tests:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.test
+    depends_on:
+      - backend
+    environment:
+      - CI=true

@@ -19,8 +19,6 @@ RUN npm install --build-from-source
 
 COPY . .
 
-# COPY data ./data
-
 EXPOSE 3000
 
 CMD ["node", "server.js"]

@@ -25,10 +25,9 @@ const MonthlyAverageChart = ({ data }) => {
   const labels = data.map(r => r.month);
   const values = data.map(r => r.average_rate);
 
-  const min = Math.min(...values)- 0.05;
-  const max = Math.max(...values)+ 0.05;
+  const min = Math.min(...values) - 0.05;
+  const max = Math.max(...values) + 0.05;
 
-  // פונקציה לחישוב צבע לפי ערך
   const getColor = (value) => {
     if (max === min) return 'rgb(255,255,0)';
     const ratio = (value - min) / (max - min);
@@ -42,33 +41,33 @@ const MonthlyAverageChart = ({ data }) => {
     datasets: [{
       label: 'Average Rate',
       data: values,
-      borderColor: 'rgb(75, 192, 192)', // קו אחיד
-      backgroundColor: 'rgba(0,0,0,0)', // רק הנקודות יצבעו
+      borderColor: 'rgb(2, 22, 138)',
+      backgroundColor: 'rgba(0,0,0,0)',
       pointBackgroundColor: values.map(getColor),
       pointBorderColor: values.map(getColor),
       pointRadius: 6,
       pointHoverRadius: 8,
-      tension: 0.3, // קו חלק
+      tension: 0.3,
     }]
   };
 
- const options = {
-  responsive: true,
-  maintainAspectRatio: false, // חשוב למנוע גלילה מיותרת
-  plugins: {
-    legend: { position: 'top' },
-  },
-  scales: {
-    y: {
-      min: min,
-      max: max,
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top' },
+    },
+    scales: {
+      y: {
+        min: min,
+        max: max,
+      }
     }
-  }
-};
+  };
 
 
   return (
-    <div style={{ width: '100%', height: '350px' }}> {/* גובה קבוע */}
+    <div style={{ width: '100%', height: '350px' }}>
       <Line data={chartData} options={options} />
     </div>
   );
