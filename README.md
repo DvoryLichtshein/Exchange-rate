@@ -28,3 +28,9 @@ The information is updated from a connection to the Bank of Israel.
 2. The colors in the average table reflect high/low values.
 3. Clicking the "Show Forecast Matrix" button will display the forecasts, differences, and multiples.
 4. Average graph by months.
+
+
+The web:
+
+
+<video src="https://raw.githubusercontent.com/DvoryLichtshein/Exchange-rate/main/video.mp4" controls width="700"></video>
