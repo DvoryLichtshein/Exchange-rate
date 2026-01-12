@@ -33,4 +33,4 @@ The information is updated from a connection to the Bank of Israel.
 The web:
 
 
-<video src="https://raw.githubusercontent.com/DvoryLichtshein/Exchange-rate/main/video.mp4" controls width="700"></video>
+<video src="https://github.com/DvoryLichtshein/Exchange-rate/blob/main/video.mp4" controls width="700"></video>
