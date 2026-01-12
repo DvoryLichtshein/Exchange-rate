@@ -1,0 +1,25 @@
+.dashboard-container {
+    display: flex;
+    gap: 20px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    padding: 10px;
+    align-items: flex-start;
+}
+
+.dashboard-container>* {
+    max-width: 600px;
+    max-height: 350px;
+    flex: 1 1 auto;
+}
+
+body,
+html {
+    color: rgb(2, 22, 138);
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    background-color: rgb(240, 240, 250);
+}
+
+h1 {
+    text-align: center;
+}
